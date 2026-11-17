@@ -24,8 +24,8 @@ configure<ApplicationExtension> {
 
     defaultConfig {
         applicationId = "com.minminworld.watchbridgeweather"
-        versionCode = 6 // WBW: own numbering (based on Breezy 6.2.2)
-        versionName = "1.0.5"
+        versionCode = 7 // WBW: own numbering (based on Breezy 6.2.2)
+        versionName = "1.0.6"
 
         buildConfigField("String", "COMMIT_COUNT", "\"${getCommitCount()}\"")
         buildConfigField("String", "COMMIT_SHA", "\"${getGitSha()}\"")
@@ -485,6 +485,8 @@ dependencies {
     // The ads SDK brings guava 31.1-android at runtime only, while WorkManager's listenablefuture is
     // replaced by an empty stub -> declare that same guava for compile and drop listenablefuture (duplicate class).
     implementation("com.google.android.gms:play-services-ads:24.9.0")
+    // WBW F6 UMP consent gate: ads only when consent allows.
+    implementation("com.google.android.ump:user-messaging-platform:3.1.0")
     implementation("com.google.guava:guava:31.1-android")
     implementation(projects.data)
     implementation(projects.domain)

@@ -5,4 +5,6 @@
     <!-- WBW F2: LICENSE_ADDITIONAL — modified versions must be marked as different from the original -->
     <string name="wbw_based_on">Modified version of Breezy Weather (LGPL-3.0)</string>
     <string name="wbw_original_link" translatable="false">github.com/breezy-weather/breezy-weather</string>
+    <!-- WBW F6: UMP privacy options form entry -->
+    <string name="wbw_ad_privacy_title">Ad privacy choices</string>
 </resources>

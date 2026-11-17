@@ -14,7 +14,7 @@ Watch Bridge Weather is a **modified version of [Breezy Weather](https://github.
 - Location search and place names through the device geocoder (Android Geocoder)
 - Approximate location only; no background location; no battery-optimization exemption request;
   permissions are not re-requested after the user has answered
-- One banner ad (Google Mobile Ads) on the main screen
+- One banner ad (Google Mobile Ads) on the main screen, requested only after Google UMP consent allows it
 - Weather can be sent to the Watch Bridge app on the same phone through the Gadgetbridge weather broadcast,
   with missing min/max temperatures filled from known values
 - Korean menu names; the About screen marks the app as a modified version of Breezy Weather

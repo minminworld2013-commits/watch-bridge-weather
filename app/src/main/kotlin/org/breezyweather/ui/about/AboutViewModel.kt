@@ -19,6 +19,8 @@ package org.breezyweather.ui.about
 import android.app.Activity
 import android.content.Context
 import androidx.lifecycle.ViewModel
+import com.google.android.ump.ConsentInformation
+import com.google.android.ump.UserMessagingPlatform
 import dagger.hilt.android.lifecycle.HiltViewModel
 import org.breezyweather.R
 import org.breezyweather.background.updater.AppUpdateChecker
@@ -31,20 +33,37 @@ class AboutViewModel @Inject constructor(
     private val updateChecker: AppUpdateChecker,
 ) : ViewModel() {
     internal fun getAboutAppLinks(activity: Activity): Array<AboutAppLinkItem> {
-        return arrayOf(
-            AboutAppLinkItem(
-                iconId = R.drawable.ic_shield_lock,
-                titleId = R.string.about_privacy_policy
+        val info = UserMessagingPlatform.getConsentInformation(activity)
+        return buildList {
+            if (info.privacyOptionsRequirementStatus ==
+                ConsentInformation.PrivacyOptionsRequirementStatus.REQUIRED
             ) {
-                IntentHelper.startPrivacyPolicyActivity(activity)
-            },
-            AboutAppLinkItem(
-                iconId = R.drawable.ic_contract,
-                titleId = R.string.about_dependencies
-            ) {
-                IntentHelper.startDependenciesActivity(activity)
+                add(
+                    AboutAppLinkItem(
+                        iconId = R.drawable.ic_settings,
+                        titleId = R.string.wbw_ad_privacy_title
+                    ) {
+                        UserMessagingPlatform.showPrivacyOptionsForm(activity) { _ -> }
+                    }
+                )
             }
-        )
+            add(
+                AboutAppLinkItem(
+                    iconId = R.drawable.ic_shield_lock,
+                    titleId = R.string.about_privacy_policy
+                ) {
+                    IntentHelper.startPrivacyPolicyActivity(activity)
+                }
+            )
+            add(
+                AboutAppLinkItem(
+                    iconId = R.drawable.ic_contract,
+                    titleId = R.string.about_dependencies
+                ) {
+                    IntentHelper.startDependenciesActivity(activity)
+                }
+            )
+        }.toTypedArray()
     }
 
     internal suspend fun checkForUpdate(

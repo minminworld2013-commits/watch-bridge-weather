@@ -235,7 +235,10 @@ class MainActivity : BreezyActivity(), HomeFragment.Callback, ManagementFragment
         binding = ActivityMainBinding.inflate(layoutInflater)
         supportFragmentManager.registerFragmentLifecycleCallbacks(fragmentsLifecycleCallback, false)
         setContentView(binding.root)
-        org.breezyweather.wbw.WbwBannerAd.attach(this, binding.wbwAdContainer) // WBW F5
+        // WBW F6: request UMP consent first; attach the banner only when consent allows.
+        org.breezyweather.wbw.WbwAdConsent.requestConsentAndLoad(this) {
+            org.breezyweather.wbw.WbwBannerAd.attach(this, binding.wbwAdContainer)
+        }
 
         initModel(savedInstanceState == null)
         initView()
