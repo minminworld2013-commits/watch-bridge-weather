@@ -109,10 +109,11 @@ class AndroidLocationService @Inject constructor() : LocationSource {
         locationManager.removeUpdates(listener)
     }
 
+    // WBW F4: approximate location only. ACCESS_FINE_LOCATION is not in the manifest,
+    // so listing it here made every current-location refresh wait on a permission that can never be granted.
     override val permissions: Array<String>
         get() = arrayOf(
-            Manifest.permission.ACCESS_COARSE_LOCATION,
-            Manifest.permission.ACCESS_FINE_LOCATION
+            Manifest.permission.ACCESS_COARSE_LOCATION
         )
 
     companion object {

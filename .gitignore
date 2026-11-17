@@ -43,3 +43,7 @@ bin/
 /currentPosition.properties
 /captures
 /local.properties
+
+# WBW: host-only release signing
+keystore.properties
+*.jks

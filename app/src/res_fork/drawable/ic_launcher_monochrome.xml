@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- WBW F1: themed-icon (Android 13+) silhouette -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <path
+        android:pathData="M30,46 Q54,24 78,46"
+        android:strokeColor="#FFFFFFFF"
+        android:strokeWidth="3.2"
+        android:strokeLineCap="round"
+        android:fillColor="#00000000" />
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M64,52m-11,0a11,11 0,1 1,22 0a11,11 0,1 1,-22 0 M46,62m-10,0a10,10 0,1 1,20 0a10,10 0,1 1,-20 0 M58,58m-12,0a12,12 0,1 1,24 0a12,12 0,1 1,-24 0 M69,66m-8,0a8,8 0,1 1,16 0a8,8 0,1 1,-16 0 M41.5,63h31a5.5,5.5 0,0 1,0 11h-31a5.5,5.5 0,0 1,0 -11z" />
+</vector>

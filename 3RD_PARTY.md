@@ -1,3 +1,6 @@
+> Note (Watch Bridge Weather): this file is inherited from Breezy Weather. In Watch Bridge Weather the only weather
+> source offered is MET Norway; location search uses the device geocoder.
+
 # 3rd party apps using Breezy Weather data
 
 These applications were developed by people outside the project. They are not actively monitored by our team, so we assume no responsibility for any issues that may arise.

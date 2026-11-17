@@ -54,6 +54,7 @@ import org.breezyweather.unit.pressure.Pressure.Companion.hectopascals
 import org.breezyweather.unit.ratio.Ratio.Companion.percent
 import org.breezyweather.unit.speed.Speed.Companion.metersPerSecond
 import org.breezyweather.unit.temperature.Temperature.Companion.celsius
+import org.breezyweather.wbw.WbwMetNo
 import retrofit2.Retrofit
 import java.util.Date
 import javax.inject.Inject
@@ -97,8 +98,8 @@ class MetNoService @Inject constructor(
         val forecast = if (SourceFeature.FORECAST in requestedFeatures) {
             mApi.getForecast(
                 userAgent,
-                location.latitude,
-                location.longitude
+                WbwMetNo.coord(location.latitude),
+                WbwMetNo.coord(location.longitude)
             ).onErrorResumeNext {
                 failedFeatures[SourceFeature.FORECAST] = it
                 Observable.just(MetNoForecastResult())
@@ -112,8 +113,8 @@ class MetNoService @Inject constructor(
         ) {
             mApi.getNowcast(
                 userAgent,
-                location.latitude,
-                location.longitude
+                WbwMetNo.coord(location.latitude),
+                WbwMetNo.coord(location.longitude)
             ).onErrorResumeNext {
                 if (SourceFeature.MINUTELY in requestedFeatures) {
                     failedFeatures[SourceFeature.MINUTELY] = it
@@ -130,8 +131,8 @@ class MetNoService @Inject constructor(
         val airQuality = if (SourceFeature.AIR_QUALITY in requestedFeatures) {
             mApi.getAirQuality(
                 userAgent,
-                location.latitude,
-                location.longitude
+                WbwMetNo.coord(location.latitude),
+                WbwMetNo.coord(location.longitude)
             ).onErrorResumeNext {
                 failedFeatures[SourceFeature.AIR_QUALITY] = it
                 Observable.just(MetNoAirQualityResult())
@@ -144,8 +145,8 @@ class MetNoService @Inject constructor(
             mApi.getAlerts(
                 userAgent,
                 if (context.currentLocale.toString().lowercase().startsWith("no")) "no" else "en",
-                location.latitude,
-                location.longitude
+                WbwMetNo.coord(location.latitude),
+                WbwMetNo.coord(location.longitude)
             ).onErrorResumeNext {
                 failedFeatures[SourceFeature.ALERT] = it
                 Observable.just(MetNoAlertResult())

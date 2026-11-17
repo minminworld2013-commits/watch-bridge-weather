@@ -21,7 +21,9 @@ import android.location.Geocoder
 import breezyweather.domain.location.model.LocationAddressInfo
 import io.reactivex.rxjava3.core.Observable
 import kotlinx.coroutines.rx3.rxObservable
+import org.breezyweather.common.exceptions.LocationSearchException
 import org.breezyweather.common.extensions.currentLocale
+import org.breezyweather.wbw.WbwGeocoderSearch
 import javax.inject.Inject
 
 class AndroidGeocoderService @Inject constructor() : AndroidGeocoderServiceStub() {
@@ -49,6 +51,34 @@ class AndroidGeocoderService @Inject constructor() : AndroidGeocoderServiceStub(
                 )
             }
             send(locationList)
+        }
+    }
+
+    // WBW: city search through the device geocoder
+    override fun requestLocationSearch(
+        context: Context,
+        query: String,
+    ): Observable<List<LocationAddressInfo>> {
+        if (!Geocoder.isPresent()) throw LocationSearchException()
+        val geocoder = Geocoder(context, context.currentLocale)
+        return rxObservable {
+            @Suppress("DEPRECATION")
+            val addresses = geocoder.getFromLocationName(query, WbwGeocoderSearch.MAX_RESULTS) ?: emptyList()
+            send(
+                addresses.filter { it.hasLatitude() && it.hasLongitude() }.mapNotNull {
+                    WbwGeocoderSearch.toInfo(
+                        latitude = it.latitude,
+                        longitude = it.longitude,
+                        countryCode = it.countryCode,
+                        countryName = it.countryName,
+                        adminArea = it.adminArea,
+                        subAdminArea = it.subAdminArea,
+                        locality = it.locality,
+                        subLocality = it.subLocality,
+                        featureName = it.featureName
+                    )
+                }
+            )
         }
     }
 }

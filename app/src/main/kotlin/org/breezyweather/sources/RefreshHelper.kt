@@ -135,13 +135,6 @@ class RefreshHelper @Inject constructor(
             ) {
                 errors.add(RefreshError(RefreshErrorType.ACCESS_LOCATION_PERMISSION_MISSING))
             }
-            if (background) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q &&
-                    !context.hasPermission(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
-                ) {
-                    errors.add(RefreshError(RefreshErrorType.ACCESS_BACKGROUND_LOCATION_PERMISSION_MISSING))
-                }
-            }
             if (!LocationManagerCompat.isLocationEnabled(context.locationManager)) {
                 errors.add(RefreshError(RefreshErrorType.LOCATION_ACCESS_OFF))
             }
@@ -509,9 +502,6 @@ class RefreshHelper @Inject constructor(
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q || permissions.isEmpty()) {
             // device has no background location permission or locate by IP.
             return permissions
-        }
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
-            permissions.add(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
         }
         return permissions
     }

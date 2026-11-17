@@ -35,6 +35,7 @@ import org.breezyweather.sources.gadgetbridge.json.GadgetbridgeDailyForecast
 import org.breezyweather.sources.gadgetbridge.json.GadgetbridgeData
 import org.breezyweather.sources.gadgetbridge.json.GadgetbridgeHourlyForecast
 import org.breezyweather.unit.ratio.Ratio
+import org.breezyweather.wbw.WbwWatchTemp
 import javax.inject.Inject
 import kotlin.math.roundToInt
 
@@ -77,6 +78,12 @@ class GadgetbridgeService @Inject constructor() : BroadcastSource {
     ): GadgetbridgeData {
         val current = location.weather?.current
         val today = location.weather?.today
+        // WBW F6: never send a missing min/max (the watch shows it as -273 °C)
+        val (todayMaxK, todayMinK) = WbwWatchTemp.maxMin(
+            dayK = today?.day?.temperature?.temperature?.inKelvins,
+            nightK = today?.night?.temperature?.temperature?.inKelvins,
+            currentK = current?.temperature?.temperature?.inKelvins
+        )
 
         return GadgetbridgeData(
             timestamp = location.weather?.base?.forecastUpdateTime?.time?.div(1000)?.toInt(),
@@ -89,8 +96,8 @@ class GadgetbridgeService @Inject constructor() : BroadcastSource {
             windDirection = current?.wind?.degree?.roundToInt(),
             uvIndex = current?.uV?.index?.toFloat(),
 
-            todayMaxTemp = today?.day?.temperature?.temperature?.inKelvins?.roundToInt(),
-            todayMinTemp = today?.night?.temperature?.temperature?.inKelvins?.roundToInt(),
+            todayMaxTemp = todayMaxK,
+            todayMinTemp = todayMinK,
             feelsLikeTemp = current?.temperature?.feelsLikeTemperature?.inKelvins?.roundToInt(),
             precipProbability = maxOfNullable(
                 today?.day?.precipitationProbability?.total,
@@ -125,11 +132,17 @@ class GadgetbridgeService @Inject constructor() : BroadcastSource {
         return dailyForecast.subList(1, dailyForecast.size).map { day ->
             val maxWind = listOf(day.day?.wind, day.night?.wind)
                 .maxByOrNull { it?.speed?.value ?: Long.MIN_VALUE }
+            // WBW F6: fill a missing half from the other one (the watch shows a missing value as -273 °C)
+            val (dayMaxK, dayMinK) = WbwWatchTemp.maxMin(
+                dayK = day.day?.temperature?.temperature?.inKelvins,
+                nightK = day.night?.temperature?.temperature?.inKelvins,
+                currentK = null
+            )
 
             GadgetbridgeDailyForecast(
                 conditionCode = getWeatherCode(day.day?.weatherCode, day.cloudCover?.average),
-                maxTemp = day.day?.temperature?.temperature?.inKelvins?.roundToInt(),
-                minTemp = day.night?.temperature?.temperature?.inKelvins?.roundToInt(),
+                maxTemp = dayMaxK,
+                minTemp = dayMinK,
                 humidity = day.relativeHumidity?.average?.inPercent?.roundToInt(),
                 windSpeed = maxWind?.speed?.inKilometersPerHour?.toFloat(),
                 windDirection = maxWind?.degree?.roundToInt(),

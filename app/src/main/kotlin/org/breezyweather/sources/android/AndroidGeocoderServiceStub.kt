@@ -19,6 +19,7 @@ package org.breezyweather.sources.android
 import android.location.Geocoder
 import breezyweather.domain.location.model.Location
 import breezyweather.domain.source.SourceFeature
+import org.breezyweather.common.source.LocationSearchSource
 import org.breezyweather.common.source.NonFreeNetSource
 import org.breezyweather.common.source.ReverseGeocodingSource
 
@@ -27,6 +28,7 @@ import org.breezyweather.common.source.ReverseGeocodingSource
  */
 abstract class AndroidGeocoderServiceStub() :
     ReverseGeocodingSource,
+    LocationSearchSource, // WBW: also city search (release gate, WBW)
     NonFreeNetSource {
 
     override val id = "nativegeocoder"
@@ -35,6 +37,8 @@ abstract class AndroidGeocoderServiceStub() :
     override val supportedFeatures = mapOf(
         SourceFeature.REVERSE_GEOCODING to name
     )
+
+    override val locationSearchAttribution = name
 
     override fun isFeatureSupportedForLocation(location: Location, feature: SourceFeature): Boolean {
         return Geocoder.isPresent()

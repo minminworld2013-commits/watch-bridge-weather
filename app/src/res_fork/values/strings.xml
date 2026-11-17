@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- App -->
-    <string name="brand_name" translatable="false">No Name Weather</string>
+    <string name="brand_name" translatable="false">Watch Bridge Weather</string>
+    <!-- WBW F2: LICENSE_ADDITIONAL — modified versions must be marked as different from the original -->
+    <string name="wbw_based_on">Modified version of Breezy Weather (LGPL-3.0)</string>
+    <string name="wbw_original_link" translatable="false">github.com/breezy-weather/breezy-weather</string>
 </resources>

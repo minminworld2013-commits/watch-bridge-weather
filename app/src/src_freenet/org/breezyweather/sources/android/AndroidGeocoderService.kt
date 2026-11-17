@@ -31,4 +31,11 @@ class AndroidGeocoderService @Inject constructor() : AndroidGeocoderServiceStub(
     ): Observable<List<LocationAddressInfo>> {
         throw NonFreeNetSourceException()
     }
+
+    override fun requestLocationSearch(
+        context: Context,
+        query: String,
+    ): Observable<List<LocationAddressInfo>> {
+        throw NonFreeNetSourceException()
+    }
 }

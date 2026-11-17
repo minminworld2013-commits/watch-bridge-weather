@@ -397,6 +397,17 @@ private fun Header() {
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             style = MaterialTheme.typography.labelMedium
         )
+        // WBW F2: mark this build as a modified version and point to the original (LICENSE_ADDITIONAL)
+        Text(
+            text = stringResource(R.string.wbw_based_on),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            style = MaterialTheme.typography.labelMedium
+        )
+        Text(
+            text = stringResource(R.string.wbw_original_link),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            style = MaterialTheme.typography.labelSmall
+        )
     }
 }
 

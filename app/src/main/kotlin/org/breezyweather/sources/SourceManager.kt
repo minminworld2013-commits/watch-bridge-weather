@@ -327,6 +327,14 @@ class SourceManager @Inject constructor(
                 }
         )
         addAll(broadcastSourceList)
+    }.filter {
+        // WBW F3b: offer only commercially usable sources (ads build). See WbwSourcePolicy.
+        org.breezyweather.wbw.WbwSourcePolicy.isAllowed(
+            it.id,
+            isWeather = it is WeatherSource,
+            isLocationSearch = it is LocationSearchSource,
+            isReverseGeocoding = it is ReverseGeocodingSource
+        )
     }.toImmutableList()
 
     fun getSource(id: String): Source? = sourceList.firstOrNull { it.id == id }
@@ -499,32 +507,13 @@ class SourceManager @Inject constructor(
         location: Location,
         feature: SourceFeature,
     ): FeatureSource? {
+        // WBW F3b: Breezy's defaults (Open-Meteo, AccuWeather, Nominatim) are not usable in an ads build.
+        // MET Norway where it supports the feature for this location, otherwise none.
         return when (feature) {
-            SourceFeature.AIR_QUALITY -> if (!location.countryCode.equals("IN", ignoreCase = true) ||
-                BuildConfig.FLAVOR == "freenet"
-            ) {
-                getWeatherSource("openmeteo")
-            } else {
-                null
+            SourceFeature.REVERSE_GEOCODING -> getReverseGeocodingSource(BuildConfig.DEFAULT_GEOCODING_SOURCE)
+            else -> getWeatherSource(org.breezyweather.wbw.WbwSourcePolicy.DEFAULT_WEATHER_SOURCE)?.takeIf {
+                feature in it.supportedFeatures && it.isFeatureSupportedForLocation(location, feature)
             }
-
-            SourceFeature.POLLEN -> getWeatherSource("openmeteo")?.let {
-                if (it.isFeatureSupportedForLocation(location, feature)) it else null
-            } ?: getWeatherSource("accu")?.takeIf {
-                it.isFeatureSupportedForLocation(location, feature) && BuildConfig.FLAVOR != "freenet"
-            }
-
-            SourceFeature.ALERT -> if (BuildConfig.FLAVOR != "freenet") getWeatherSource("accu") else null
-            SourceFeature.NORMALS -> if (!location.countryCode.equals("CN", ignoreCase = true) &&
-                BuildConfig.FLAVOR != "freenet"
-            ) {
-                getWeatherSource("accu")
-            } else {
-                null
-            }
-
-            SourceFeature.REVERSE_GEOCODING -> getReverseGeocodingSource("nominatim")
-            else -> getWeatherSource("openmeteo")
         }
     }
 

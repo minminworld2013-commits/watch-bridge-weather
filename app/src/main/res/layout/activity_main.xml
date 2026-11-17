@@ -28,4 +28,12 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
+    <!-- WBW F5: single banner ad slot, bottom of the main screen. -->
+    <FrameLayout
+        android:id="@+id/wbw_ad_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:elevation="8dp" />
+
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

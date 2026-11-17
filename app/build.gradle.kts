@@ -23,9 +23,9 @@ configure<ApplicationExtension> {
     namespace = "org.breezyweather"
 
     defaultConfig {
-        applicationId = "org.breezyweather"
-        versionCode = 60202
-        versionName = "6.2.2"
+        applicationId = "com.minminworld.watchbridgeweather"
+        versionCode = 6 // WBW: own numbering (based on Breezy 6.2.2)
+        versionName = "1.0.5"
 
         buildConfigField("String", "COMMIT_COUNT", "\"${getCommitCount()}\"")
         buildConfigField("String", "COMMIT_SHA", "\"${getGitSha()}\"")
@@ -43,7 +43,8 @@ configure<ApplicationExtension> {
 
     splits {
         abi {
-            isEnable = true
+            // WBW: Play gets an AAB (Play splits per ABI itself); APK splits break bundle builds (issuetracker 402800800)
+            isEnable = false
             reset()
             include(*supportedAbi.toTypedArray())
             isUniversalApk = true
@@ -56,6 +57,17 @@ configure<ApplicationExtension> {
             versionNameSuffix = "-r${getCommitCount()}"
         }
         named("release") {
+            // WBW: host-only keystore.properties (gitignored) -> ~/.fastlane/watchbridgeweather-upload.jks
+            val ksFile = rootProject.file("keystore.properties")
+            if (ksFile.canRead()) {
+                val ks = Properties().apply { load(ksFile.inputStream()) }
+                signingConfig = signingConfigs.create("wbwUpload") {
+                    storeFile = file(ks.getProperty("storeFile"))
+                    storePassword = ks.getProperty("storePassword")
+                    keyAlias = ks.getProperty("keyAlias")
+                    keyPassword = ks.getProperty("keyPassword")
+                }
+            }
             isShrinkResources = true
             isMinifyEnabled = true
             isDebuggable = false
@@ -71,6 +83,18 @@ configure<ApplicationExtension> {
     val globalProperties = Properties()
     if (project.rootProject.file("gradle.properties").canRead()) {
         globalProperties.load(project.rootProject.file("gradle.properties").inputStream())
+    }
+    // WBW F5: AdMob ids. Debug always uses Google's public test ids.
+    // Release reads real ids from local.properties (wbw.admob.app_id / wbw.admob.banner_id); falls back to test ids.
+    val wbwTestAppId = "ca-app-pub-3940256099942544~3347511713"
+    val wbwTestBannerId = "ca-app-pub-3940256099942544/6300978111"
+    buildTypes.forEach { bt ->
+        val isRelease = bt.name == "release"
+        val appId = if (isRelease) localProperties.getProperty("wbw.admob.app_id") ?: wbwTestAppId else wbwTestAppId
+        val bannerId =
+            if (isRelease) localProperties.getProperty("wbw.admob.banner_id") ?: wbwTestBannerId else wbwTestBannerId
+        bt.manifestPlaceholders["wbwAdmobAppId"] = appId
+        bt.buildConfigField("String", "WBW_ADMOB_BANNER_ID", "\"$bannerId\"")
     }
     buildTypes.forEach { it ->
         it.buildConfigField(
@@ -225,7 +249,7 @@ configure<ApplicationExtension> {
         it.buildConfigField(
             "String",
             "DEFAULT_LOCATION_SEARCH_SOURCE",
-            "\"${localProperties.getProperty("breezy.source.default_location_search") ?: "openmeteo"}\""
+            "\"${localProperties.getProperty("breezy.source.default_location_search") ?: "nativegeocoder"}\""
         )
         it.buildConfigField(
             "String",
@@ -235,7 +259,7 @@ configure<ApplicationExtension> {
         it.buildConfigField(
             "String",
             "DEFAULT_FORECAST_SOURCE",
-            "\"${localProperties.getProperty("breezy.source.default_weather") ?: "auto"}\""
+            "\"${localProperties.getProperty("breezy.source.default_weather") ?: "metno"}\""
         )
         it.buildConfigField(
             "String",
@@ -457,6 +481,11 @@ aboutLibraries {
 }
 
 dependencies {
+    // WBW F5 banner. 24.x keeps Breezy minSdk 23 (25.x needs 24).
+    // The ads SDK brings guava 31.1-android at runtime only, while WorkManager's listenablefuture is
+    // replaced by an empty stub -> declare that same guava for compile and drop listenablefuture (duplicate class).
+    implementation("com.google.android.gms:play-services-ads:24.9.0")
+    implementation("com.google.guava:guava:31.1-android")
     implementation(projects.data)
     implementation(projects.domain)
     implementation(projects.mapsUtils)
@@ -584,4 +613,9 @@ buildscript {
     dependencies {
         classpath(libs.kotlin.gradle)
     }
+}
+
+// WBW F5: ListenableFuture comes from guava (see dependencies); the standalone artifact duplicates it.
+configurations.configureEach {
+    exclude(group = "com.google.guava", module = "listenablefuture")
 }

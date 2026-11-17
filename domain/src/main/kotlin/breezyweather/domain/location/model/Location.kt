@@ -48,7 +48,7 @@ data class Location(
 
     val weather: Weather? = null,
 
-    val forecastSource: String = "openmeteo",
+    val forecastSource: String = "metno", // WBW F3b: ads build, Open-Meteo free API is non-commercial
     val currentSource: String? = null,
     val airQualitySource: String? = null,
     val pollenSource: String? = null,

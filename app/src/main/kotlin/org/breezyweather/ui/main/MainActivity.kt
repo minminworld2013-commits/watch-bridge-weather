@@ -235,6 +235,7 @@ class MainActivity : BreezyActivity(), HomeFragment.Callback, ManagementFragment
         binding = ActivityMainBinding.inflate(layoutInflater)
         supportFragmentManager.registerFragmentLifecycleCallbacks(fragmentsLifecycleCallback, false)
         setContentView(binding.root)
+        org.breezyweather.wbw.WbwBannerAd.attach(this, binding.wbwAdContainer) // WBW F5
 
         initModel(savedInstanceState == null)
         initView()
@@ -404,7 +405,13 @@ class MainActivity : BreezyActivity(), HomeFragment.Callback, ManagementFragment
                                 }
                             }
                         } else {
-                            requestPermissions(it.permissionList.toTypedArray(), PERMISSION_CODE_LOCATION_ACCESS)
+                            // WBW (Play policy, Breezy #31): never re-request after the user already answered once.
+                            // Continue exactly as upstream does after a denied answer, so the refresh ends with the
+                            // error card (which offers the system settings) instead of spinning forever.
+                            viewModel.updateWithUpdatingChecking(
+                                triggeredByUser = false,
+                                checkPermissions = false
+                            )
                         }
                     }
                 }
@@ -678,41 +685,6 @@ class MainActivity : BreezyActivity(), HomeFragment.Callback, ManagementFragment
         grantResults: IntArray,
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-
-        if (requestCode == PERMISSION_CODE_LOCATION_ACCESS &&
-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q &&
-            grantResults.isNotEmpty() &&
-            grantResults[0] == PackageManager.PERMISSION_GRANTED &&
-            !viewModel.statementManager.isBackgroundLocationPermissionDialogAlreadyShown &&
-            !this.hasPermission(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
-        ) {
-            val dialogBackgroundLocationPermissionOpenState = mutableStateOf(true)
-            binding.locationPermissionDialog.setContent {
-                BreezyWeatherTheme(
-                    !ThemeManager.isLightTheme(this@MainActivity, daylight = isDaylight)
-                ) {
-                    if (dialogBackgroundLocationPermissionOpenState.value) {
-                        AlertDialogConfirmOnly(
-                            title = R.string.dialog_permissions_location_background_title,
-                            content = R.string.dialog_permissions_location_background_content,
-                            confirmButtonText = R.string.action_set,
-                            onConfirm = {
-                                // mark background location permission declared.
-                                viewModel.statementManager
-                                    .setBackgroundLocationPermissionDialogAlreadyShown()
-                                // request background location permission.
-                                requestPermissions(
-                                    arrayOf(Manifest.permission.ACCESS_BACKGROUND_LOCATION),
-                                    PERMISSION_CODE_ACCESS_BACKGROUND_LOCATION
-                                )
-                                dialogBackgroundLocationPermissionOpenState.value = false
-                            }
-                        )
-                    }
-                }
-            }
-            return
-        }
 
         if (requestCode == PERMISSION_CODE_LOCATION_ACCESS ||
             requestCode == PERMISSION_CODE_ACCESS_BACKGROUND_LOCATION

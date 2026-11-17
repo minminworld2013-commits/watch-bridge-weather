@@ -245,8 +245,8 @@ fun BackgroundSettingsScreen(
                         try {
                             @SuppressLint("BatteryLife")
                             val intent = Intent().apply {
-                                action = Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS
-                                data = "package:$packageName".toUri()
+                                // WBW (Play policy, Breezy #31): open the system list instead of asking for an exemption.
+                                action = Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS
                                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                             }
                             context.startActivity(intent)

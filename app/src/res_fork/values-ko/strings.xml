@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- WBW: Korean menu names. Upstream ko translates "External modules" as
+     "위젯 및 라이브 배경화면", so users could not find where to turn on sending weather to the watch. -->
+<resources>
+    <string name="settings_modules">위젯·워치 연동</string>
+    <string name="settings_modules_broadcast_title">데이터 공유 (워치로 날씨 보내기)</string>
+    <string name="wbw_based_on">Breezy Weather 기반 수정판 (LGPL-3.0)</string>
+</resources>
